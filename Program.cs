@@ -1,4 +1,5 @@
 ﻿using CALINQ24091601;
+using System.Data.Common;
 using System.Security.Principal;
 
 #region list of pets 
@@ -108,3 +109,53 @@ Console.WriteLine($"legöregebb kiskedvenc: {linqminby}");
 //find, findall, indexof <-- nem linq
 //first, last, single + **ordefault <-- linq
 
+var linqfirst = pets.First(p => p.Species == "Cat");
+Console.WriteLine($"az első cica a listában: {linqfirst}");
+//ha van, visszadja a rendre ELSŐ matchy-matchy elementet
+//ha nincs "sequence contains no matching element" exception
+
+var linqlast = pets.Last(p => p.Species == "Cat");
+Console.WriteLine($"az utolsó cica a listában: {linqlast}");
+//ha van, visszadja a rendre UTOLSÓ matchy-matchy elementet
+//ha nincs "sequence contains no matching element" exception
+
+var linqsingle = pets.Single(p => p.Species == "Parrot");
+Console.WriteLine($"az EGYETLEN papagáj a listában: {linqsingle}");
+//ha EGYETLEN matchy-metchy element van, akkor azt visszaadja
+//ha TÖBB van "sequence contains more than one matching element" exception
+//ha egyáltalán NINCS matchy-metchy element, akkor "sequence contains no matching element" exception
+
+var linqfirstordef = pets.FirstOrDefault(p => p.Species == "Unicorn");
+Console.WriteLine($"az első cica a listában: {linqfirstordef}");
+//ha van, visszadja a rendre ELSŐ matchy-matchy elementet
+//ha nincs, akkor típustól függő default értékkel tér vissza, ami
+//referencia-típus esetén null
+//érték-típus esetén ÁLTALÁBAN "zéró" (de amúgy a struct-ban definiált 'default' érték)
+//a Find(x => x..) ugyan ezt csinálja
+
+var linqlastordef = pets.LastOrDefault(p => p.Species == "Cat");
+Console.WriteLine($"az utolsó cica a listában: {linqlastordef}");
+//ha van, visszadja a rendre UTOLSÓ matchy-matchy elementet
+//ha nincs, akkor típustól függő default értékkel tér vissza, ami
+//referencia-típus esetén null
+//érték-típus esetén ÁLTALÁBAN "zéró" (de amúgy a struct-ban definiált 'default' érték)
+
+//int[] szamok =  [2, 40, 16, 7, 11];
+//var res = szamok.FirstOrDefault(e => e % 104 == 0);
+//Console.WriteLine(res);
+
+var linqsingleordef = pets.SingleOrDefault(p => p.Species == "Parrot");
+Console.WriteLine($"az EGYETLEN papagáj a listában: {linqsingleordef}");
+//ha EGYETLEN matchy-matchy element van, akkor azt visszaadja
+//ha TÖBB van "sequence contains more than one matching element" exception
+//ha NINCS, akkor pedig default értéket, ami
+//referencia-típus esetén null
+//érték-típus esetén ÁLTALÁBAN "zéró" (de amúgy a struct-ban definiált 'default' érték)
+
+var firstGirl = pets.FirstOrDefault(p => p.Name == "János");
+int firstGirlIndex = pets.IndexOf(firstGirl);
+Console.WriteLine($"első kislány a listában: {firstGirl}; indexe: {firstGirlIndex}");
+//az indexof ha nincs benne a pred. element a kollekcióban, akkor -1-el tér vissza (NEM hibát dob)
+
+////...
+//FindAll(x => x..) ugyan az, mint a Where, csak listát ad vissza, nem IEnumerable collectiont
