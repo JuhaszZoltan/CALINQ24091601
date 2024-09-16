@@ -13,5 +13,8 @@ namespace CALINQ24091601
         public string Name { get; set; }
         public bool Sex { get; set; }
         public string Species { get; set; }
+
+        public override string ToString() => 
+            $"{Name} ({Age} years old {Species} {(Sex ? "boy" : "girl")})";
     }
 }
