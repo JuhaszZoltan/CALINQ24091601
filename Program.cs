@@ -1,6 +1,4 @@
 ﻿using CALINQ24091601;
-using System.Data.Common;
-using System.Security.Principal;
 
 #region list of pets 
 List<Pet> pets = [
@@ -130,7 +128,8 @@ Console.WriteLine($"az első cica a listában: {linqfirstordef}");
 //ha van, visszadja a rendre ELSŐ matchy-matchy elementet
 //ha nincs, akkor típustól függő default értékkel tér vissza, ami
 //referencia-típus esetén null
-//érték-típus esetén ÁLTALÁBAN "zéró" (de amúgy a struct-ban definiált 'default' érték)
+//érték-típus esetén ÁLTALÁBAN "zéró"
+//(custom structnál pedig olyan struct init, aminek nincsenek "kitöltve" a mezői)
 //a Find(x => x..) ugyan ezt csinálja
 
 var linqlastordef = pets.LastOrDefault(p => p.Species == "Cat");
@@ -138,7 +137,8 @@ Console.WriteLine($"az utolsó cica a listában: {linqlastordef}");
 //ha van, visszadja a rendre UTOLSÓ matchy-matchy elementet
 //ha nincs, akkor típustól függő default értékkel tér vissza, ami
 //referencia-típus esetén null
-//érték-típus esetén ÁLTALÁBAN "zéró" (de amúgy a struct-ban definiált 'default' érték)
+//érték-típus esetén ÁLTALÁBAN "zéró"
+//(custom structnál pedig olyan struct init, aminek nincsenek "kitöltve" a mezői)
 
 //int[] szamok =  [2, 40, 16, 7, 11];
 //var res = szamok.FirstOrDefault(e => e % 104 == 0);
@@ -150,12 +150,68 @@ Console.WriteLine($"az EGYETLEN papagáj a listában: {linqsingleordef}");
 //ha TÖBB van "sequence contains more than one matching element" exception
 //ha NINCS, akkor pedig default értéket, ami
 //referencia-típus esetén null
-//érték-típus esetén ÁLTALÁBAN "zéró" (de amúgy a struct-ban definiált 'default' érték)
+//érték-típus esetén ÁLTALÁBAN "zéró"
+//(custom structnál pedig olyan struct init, aminek nincsenek "kitöltve" a mezői)
 
 var firstGirl = pets.FirstOrDefault(p => p.Name == "János");
 int firstGirlIndex = pets.IndexOf(firstGirl);
 Console.WriteLine($"első kislány a listában: {firstGirl}; indexe: {firstGirlIndex}");
 //az indexof ha nincs benne a pred. element a kollekcióban, akkor -1-el tér vissza (NEM hibát dob)
 
-////...
+var isThereAnyMaleChicken = pets.Any(p => p.Species == "Chicken" && p.Sex);
+Console.WriteLine($"{(isThereAnyMaleChicken ? "van" : "nincs")} fiú csirke a listában");
+
+Console.WriteLine("--------------------------------");
+
+//collection.generic 'sort'-ja helyben rendez ->
+//azaz a kollekció elemeinek sorrendjét változtatja meg
+//a linq orderby és az orderbydescending pedig létrehiz egy iorderedenumerable kollekciót,
+//AMIBEN az elemek sorrendeje eltérő az eredeti kollekcióhoz képest
+
+//olyan propertyk alapján lehet rendezni, amin értelmezett [<, >, ==, <=, >=] 
+
+var linqOreredByName = pets.OrderBy(p => p.Name);
+Console.WriteLine("állatkák ábécé rendben:");
+foreach (var pet in linqOreredByName)
+{
+    Console.WriteLine($"\t[{pets.IndexOf(pet):00}.] {pet}");
+}
+
+var linqOBDByAge = pets
+    .OrderByDescending(p => p.Age)
+    .ThenBy(p => p.Name);
+
+Console.WriteLine("állatkák életkor szerint csökkenőben (azon belül név szerint növekvőben):");
+foreach (var pet in linqOBDByAge)
+{
+    Console.WriteLine($"\t[{pets.IndexOf(pet):00}.] {pet}");
+}
+
+var linqChickens = pets.Where(p => p.Species == "Chicken");
+Console.WriteLine("csirkék:");
+foreach (var pet in linqChickens)
+{
+    Console.WriteLine($"\t[{pets.IndexOf(pet):00}.] {pet}");
+}
+
 //FindAll(x => x..) ugyan az, mint a Where, csak listát ad vissza, nem IEnumerable collectiont
+
+var linqBySpecies = pets.GroupBy(p => p.Species);
+Console.WriteLine("fajok szerint csopizva");
+foreach (var group in linqBySpecies.OrderBy(g => g.Key))
+{
+    Console.WriteLine($"\t{group.Key} ({group.Count()} db)");
+    foreach (var pet in group.OrderBy(p => p.Name))
+    {
+        Console.WriteLine($"\t\t[{pets.IndexOf(pet):00}.] {pet}");
+    }
+}
+
+//összes listában lévő faj, de mind csak 1x:
+var linqSpecies = pets.Select(p => p.Species).Distinct().Order();
+
+Console.WriteLine("összes állatfaj:");
+foreach (var spe in linqSpecies)
+{
+    Console.WriteLine($"\t{spe}");
+}
